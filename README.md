@@ -10,7 +10,7 @@ A driver for a Funduino/Colorduino (slave) board:
       ATMEGA328P pins PB0-4 & PD3,4 connect to M54564FP pins IN1-8. M54564FP pins OUT1-8 connect to LED pins VCC0-7
   * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x05)
   
-This code is based on the "Colorduino" library but simplified/clarified and with the addition of a simple I2C master/slave protocol.
+This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/colorduino-schematic-and-demo-code) but simplified/clarified and with the addition of a simple I2C master/slave protocol.
 
 Commands are a 1-byte transmission from the Master to the Chromaduino (Slave).  Data is a 3-byte transmission. 
 The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
