@@ -35,6 +35,9 @@ Request:
   
 Demo:
   If #define'd, a demo will run after 5s if no wire data is received from the Master
+  
+Example:
+  See ChromoduinoMaster.ino
 
 Programming:
 Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting 
