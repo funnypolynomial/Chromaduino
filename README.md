@@ -1,5 +1,7 @@
 # Chromaduino
 A driver for a (slave) Funduino/Colorduino 8x8 RGB LED board.  The LED display can then be controlled by an I2C master.
+This leaves the master Arduino with pins available for other functions, like reading buttons etc.  
+It's also easier to reprogram a master.
 
 A driver for a Funduino/Colorduino (slave) board: 
 * an 8x8 RGB LED matrix common anode
