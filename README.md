@@ -14,7 +14,7 @@ A driver for a Funduino/Colorduino (slave) board:
   
 This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/colorduino-schematic-and-demo-code) but simplified/clarified and with the addition of a simple I2C master/slave protocol.
 
-Commands are a 1-byte transmission from the Master to the Chromaduino (Slave).  Data is a 3-byte transmission. 
+Commands are a 1-byte transmission from the Master to the Chromaduino (Slave, address 0x05).  Data is a 3-byte transmission. 
 The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
 The other buffer (WRITE) is being written to by the Master.
 
