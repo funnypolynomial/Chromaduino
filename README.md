@@ -1,5 +1,4 @@
 # Chromaduino
-```
 A driver for a (slave) Funduino/Colorduino 8x8 RGB LED board.  The LED display can then be controlled by an I2C master.
 This leaves the master Arduino with pins available for other functions, like reading buttons etc.  
 It's also easier to reprogram a master.
@@ -65,4 +64,4 @@ and programming the Duemilanove as normal.  This will program the ATmega on the 
 
 v6 Mark Wilson 2016: original
 v7 Mark Wilson 2018: changed I2C address (was 0x05, non-standard?); added 0x10 & 0x11 commands; ignore white balance if R=0x80
-```
+
