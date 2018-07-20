@@ -11,7 +11,7 @@
 //   * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x70)
 // This code is based on the "Colorduino" library but simplified/clarified and with the addition of a simple I2C master/slave protocol.
 //
-// Commands are a 1-byte transmission from the Master to the Chromaduino (Slave).  Data is a 3-byte transmission. 
+// Commands are a 1-byte transmission from the Master to the Chromaduino (Slave, address 0x70).  Data is a 3-byte transmission. 
 // The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
 // The other buffer (WRITE) is being written to by the Master.
 // There is a third buffer, FAST, which is 12 bytes long (see command 0x11)
@@ -21,6 +21,7 @@
 // 0x01 swaps the WRITE and READ buffers
 // 0x02 takes the low 6 bits of the first 3 bytes in the WRITE buffer as GLOBAL scalars of the R, G and B values ("colour balance").  
 //       The default is 25, 63, 63.  This downplays the intensity of Red to achieve a reasonable "White"
+//       If the first byte is 0x80 the command is ignored
 // 0x03 takes the 1st byte in the WRITE buffer as the TCNT2 value, provided the 2nd and 3rd bytes are 16 (clock freq in MHz) and 128 (clock divisor)
 //       TCNT2 drives the timer which updates the LED rows. The default is 99 for a frequency of 800Hz.  
 //       For a desired FREQ in Hz, TCNT2 = 255 - CLOCK/FREQ where CLOCK=16000000/128. 
@@ -33,7 +34,7 @@
 //     R,G,B,  flags,row0,row1,  row2,row3,row4,  row5,row6,row7
 //     And the WRITE buffer is updated with the RGB value where a bit is set in the row data.  
 //     If bit0 of flags is set, the WRITE and READ buffers are then swapped at the end.
-//     If bit1 of flags is set, BLACK is written to the WHITE buffer where a bit is unset in the row data (otherwise it is untouched)
+//     If bit1 of flags is set, BLACK is written to the WRITE buffer where a bit is unset in the row data (otherwise it is untouched)
 //   Other transmissions are ignored
 // Request:
 //   Requesting a single byte returns the number of bytes written to the WRITE buffer
