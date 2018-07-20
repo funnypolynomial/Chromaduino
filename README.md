@@ -54,7 +54,8 @@ Demo:
   If #define'd, a demo will run after 5s if no wire data is received from the Master
   
 Example:
-  See ChromaduinoMaster.ino
+  See ChromaduinoMaster.ino.  This just flips RGB's around.
+  See ChromaduinoScrollDemoMaster.ino. This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
 
 Programming:
 Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting 
@@ -63,3 +64,4 @@ and programming the Duemilanove as normal.  This will program the ATmega on the 
 
 v6 Mark Wilson 2016: original
 v7 Mark Wilson 2018: changed I2C address (was 0x05, non-standard?); added 0x10 & 0x11 commands; ignore white balance if R=0x80
+
