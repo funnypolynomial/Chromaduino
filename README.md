@@ -61,4 +61,5 @@ Program the board by (for example) popping the ATmega chip off a Duemilanove and
    GND-GND, 5V-VCC, RX(D0)-RXD, TX(D1)-TXD and RESET-DTR
 and programming the Duemilanove as normal.  This will program the ATmega on the Funduino/Colorduino board.
 
-v5 Mark Wilson 2016
+v6 Mark Wilson 2016: original
+v7 Mark Wilson 2018: changed I2C address (was 0x05, non-standard?); added 0x10 & 0x11 commands; ignore white balance if R=0x80
