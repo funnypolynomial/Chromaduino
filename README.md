@@ -55,7 +55,7 @@ Demo:
   
 Example:
   See ChromaduinoMaster.ino.  This just flips RGB's around.
-  See ChromaduinoScrollDemoMaster.ino. This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
+  See ChromaduinoScrollDemoMaster.ino.  This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
 
 Programming:
 Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting 
