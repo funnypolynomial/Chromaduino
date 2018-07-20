@@ -3,7 +3,7 @@
 // Just cycles colours
 // Mark Wilson Dec '16
 
-#define I2C_ADDR 0x05  // the Chromaduino/Funduino I2C address
+#define I2C_ADDR 0x70  // the Chromaduino/Funduino I2C address
 #define RST_PIN A0     // this pin is connected to DTR on the Chromaduino/Funduino
 
 byte balanceRGB[3] = {22, 63, 63};
