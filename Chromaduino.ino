@@ -8,12 +8,13 @@
 //       ATMEGA328P pins PD6 & 7 are SCL & SDA to DM163 pins DCK & SIN. DM163 pins IOUT0-23 are connected to LED RGB row pins
 //   * an M54564FP which drives the LED rows.
 //       ATMEGA328P pins PB0-4 & PD3,4 connect to M54564FP pins IN1-8. M54564FP pins OUT1-8 connect to LED pins VCC0-7
-//   * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x05)
+//   * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x70)
 // This code is based on the "Colorduino" library but simplified/clarified and with the addition of a simple I2C master/slave protocol.
 //
 // Commands are a 1-byte transmission from the Master to the Chromaduino (Slave).  Data is a 3-byte transmission. 
 // The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
 // The other buffer (WRITE) is being written to by the Master.
+// There is a third buffer, FAST, which is 12 bytes long (see command 0x11)
 //
 // Commands:
 // 0x00 sets the write pointer to the start of the WRITE buffer.
@@ -23,8 +24,16 @@
 // 0x03 takes the 1st byte in the WRITE buffer as the TCNT2 value, provided the 2nd and 3rd bytes are 16 (clock freq in MHz) and 128 (clock divisor)
 //       TCNT2 drives the timer which updates the LED rows. The default is 99 for a frequency of 800Hz.  
 //       For a desired FREQ in Hz, TCNT2 = 255 - CLOCK/FREQ where CLOCK=16000000/128. 
+// 
+// 0x10 clears the WRITE buffer to all 0's
+// 0x11 sets the write pointer to the start of FILL
 // Data:
 //   Triplets of bytes are written sequentially to the WRITE buffer as R, G & B (bytes beyond the buffer are ignored)
+//   EXCEPT that after an 0x11 command, triplets of bytes are written sequentially to the FAST buffer. When the 4th triplet is received the buffer is interpreted as
+//     R,G,B,  flags,row0,row1,  row2,row3,row4,  row5,row6,row7
+//     And the WRITE buffer is updated with the RGB value where a bit is set in the row data.  
+//     If bit0 of flags is set, the WRITE and READ buffers are then swapped at the end.
+//     If bit1 of flags is set, BLACK is written to the WHITE buffer where a bit is unset in the row data (otherwise it is untouched)
 //   Other transmissions are ignored
 // Request:
 //   Requesting a single byte returns the number of bytes written to the WRITE buffer
@@ -36,7 +45,8 @@
 //    GND-GND, 5V-VCC, RX(D0)-RXD, TX(D1)-TXD and RESET-DTR
 // and programming the Duemilanove as normal.  This will program the ATmega on the Funduino/Colorduino board.
 
-// v5 Mark Wilson 2016
+// v6 Mark Wilson 2016: original
+// v7 Mark Wilson 2018: changed I2C address (was 0x05, non-standard?); added 0x10 & 0x11 commands; ignore white balance if R=0x80
 
 #define DEMO  // enable demo
 
@@ -46,7 +56,7 @@
 #define MATRIX_LEDS MATRIX_ROWS*MATRIX_COLS
 #define MATRIX_ROW_CHANNELS MATRIX_COLS*MATRIX_CHANNELS
 
-#define WIRE_DEVICE_ADDRESS 0x05
+#define WIRE_DEVICE_ADDRESS 0x70
 
 #define ROW_PORT1 PORTB
 #define ROW_PORT2 PORTD
@@ -77,6 +87,12 @@ bool balanceRecieved = false;  // true when we've rx'd a white balance command
 
 byte* wire_DataPtr = NULL;  // the write pointer
 int   wire_DataCount = 0;   // bytes received
+
+bool processClear = false;
+
+byte  fastCommandBuffer[12];
+byte* fastCommandPtr = NULL;
+bool  processFast = false;
 
 // timer ISR
 byte timerCounter2 = 0;
@@ -117,6 +133,8 @@ void wire_Request(void)
 void wire_Receive(int numBytes) 
 {
   // ISR to process receipt of bytes over I2C from external master
+  // Get out quickly!
+  
   if (numBytes == 1) // a command
   {
     byte command = Wire.read();
@@ -139,6 +157,16 @@ void wire_Receive(int numBytes)
       if (ptr[1] == 16 && ptr[2] == 128)
          timerCounter2 = *ptr;
     }
+    else if (command == 0x10) // clear to black
+    {
+      processClear = true;
+    }
+    else if (command == 0x11) // fast fill from bitmasks
+    {
+      fastCommandPtr = fastCommandBuffer;
+      wire_DataPtr = NULL;
+      wire_DataCount = 0;
+    }
     return;
   }
   else if (wire_DataPtr && ((numBytes % MATRIX_CHANNELS) == 0))  // read channel (RGB) data
@@ -149,6 +177,21 @@ void wire_Receive(int numBytes)
       wire_DataCount++;
     }
   }
+  else if (fastCommandPtr && ((numBytes % MATRIX_CHANNELS) == 0))  // read triplets for fast cmd
+  {
+    while (Wire.available() && wire_DataCount < sizeof(fastCommandBuffer))
+    {
+      *(fastCommandPtr++) = Wire.read();
+      wire_DataCount++;
+    }
+  
+    if (wire_DataCount == sizeof(fastCommandBuffer))
+    {
+      // process the cmd (outside the Wire handler)
+      processFast = true;
+    }
+  }
+  
   // discard extras
   while (Wire.available())
     Wire.read();
@@ -157,6 +200,8 @@ void wire_Receive(int numBytes)
 // white balance
 void setCorrection(byte* pChannel, int dim)
 {
+  if (*pChannel == 0x80) return;  // Ignore (0x80, x, y)
+  
   cli();
   CLEAR(LED_PORT, LED_SELECT);  // bank 0, 6-bit
   SET(LED_PORT, LED_LATCH);
@@ -168,6 +213,51 @@ void setCorrection(byte* pChannel, int dim)
   // latches BOTH banks
   CLEAR(LED_PORT, LED_LATCH);
   sei();
+}
+
+void doFastCommand()
+{
+  // r,g,b, flags,row0,row1, row2,row3,row4, row5,row6,row7
+  int Idx = 0;
+  fastCommandPtr = NULL;
+  
+  byte R = fastCommandBuffer[Idx++];
+  byte G = fastCommandBuffer[Idx++];
+  byte B = fastCommandBuffer[Idx++];
+  
+  byte F = fastCommandBuffer[Idx++];
+  // F=flags, B000000xy, if x is set, use black as background (otherwise leave as-is), if y is set, show buffer at end
+  bool flagSetBackground = F & B00000010;
+  byte* ptr = (matrixWriteA)?matrixDataA:matrixDataB;
+  for (int row = 0; row < MATRIX_ROWS; row++)
+  {
+    byte mask = fastCommandBuffer[Idx++];
+    for (int col = 0; col < MATRIX_COLS; col++)
+    {
+      if (mask & 0x01)  // set the colour
+      {
+         (*ptr++) = R;
+         (*ptr++) = G;
+         (*ptr++) = B;
+      }
+      else if (flagSetBackground) // write black
+      {
+         (*ptr++) = 0x00;
+         (*ptr++) = 0x00;
+         (*ptr++) = 0x00;
+      }
+      else  // leave colour as-is
+      {
+        ptr += 3;
+      }
+      mask >>= 1;
+    }
+  }
+  
+  if (F & B00000001)  // start displaying
+  {
+    matrixWriteA = !matrixWriteA;
+  }
 }
 
 ISR(TIMER2_OVF_vect)
@@ -255,6 +345,17 @@ void loop()
     processBalance = false;
     balanceRecieved = true;
   }
+  else if (processFast)
+  {
+    doFastCommand();
+    processFast = false;
+  }
+  else if (processClear)
+  {
+    memset((matrixWriteA)?matrixDataA:matrixDataB, 0x00, MATRIX_ROWS*MATRIX_ROW_CHANNELS);
+    processClear = false;
+  }
+  
 #ifdef DEMO
   else if (!balanceRecieved)
   {
