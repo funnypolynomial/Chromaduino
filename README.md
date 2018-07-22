@@ -16,7 +16,7 @@ This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/c
 
 Commands are a 1-byte transmission from the Master to the Chromaduino (Slave, address 0x70).  Data is a 3-byte transmission. 
 The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
-The other buffer (WRITE) is being written to by the Master.
+The other buffer (WRITE) is being written to by the Master.\
 There is a third buffer, FAST, which is 12 bytes long (see command 0x11)
 
 
@@ -34,15 +34,15 @@ If the first byte is 0x80 the command is ignored
       
 0x10 clears the WRITE buffer to all 0's
 
-0x11 sets the write pointer to the start of FILL
+0x11 sets the write pointer to the start of FAST
 
 Data:
   Triplets of bytes are written sequentially to the WRITE buffer as R, G & B (bytes beyond the buffer are ignored)
   EXCEPT that after an 0x11 command, triplets of bytes are written sequentially to the FAST buffer. 
-  When the 4th triplet is received the buffer is interpreted as
-     R,G,B,  flags,row0,row1,  row2,row3,row4,  row5,row6,row7
-     And the WRITE buffer is updated with the RGB value where a bit is set in the row data.  
-     If bit0 of flags is set, the WRITE and READ buffers are then swapped at the end.
+  When the 4th triplet is received the buffer is interpreted as:\
+     R,G,B,  flags,row0,row1,  row2,row3,row4,  row5,row6,row7\
+     And the WRITE buffer is updated with the RGB value where a bit is set in the row data.  \
+     If bit0 of flags is set, the WRITE and READ buffers are then swapped at the end.\
      If bit1 of flags is set, BLACK is written to the WRITE buffer where a bit is unset in the row data 
      (otherwise it is untouched)
   Other transmissions are ignored
@@ -53,15 +53,15 @@ Request:
 Demo:
   If #define'd, a demo will run after 5s if no wire data is received from the Master
   
-Example:
-  See ChromaduinoMaster.ino.  This just flips RGB's around.
+Example:\
+  See ChromaduinoMaster.ino.  This just flips RGB's around.\
   See ChromaduinoScrollDemoMaster.ino.  This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
 
-Programming:
-Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting 
-   GND-GND, 5V-VCC, RX(D0)-RXD, TX(D1)-TXD and RESET-DTR
+Programming:\
+Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting\
+GND-GND, 5V-VCC, RX(D0)-RXD, TX(D1)-TXD and RESET-DTR\
 and programming the Duemilanove as normal.  This will program the ATmega on the Funduino/Colorduino board.
 
-v6 Mark Wilson 2016: original
+v6 Mark Wilson 2016: original\
 v7 Mark Wilson 2018: changed I2C address (was 0x05, non-standard?); added 0x10 & 0x11 commands; ignore white balance if R=0x80
 
