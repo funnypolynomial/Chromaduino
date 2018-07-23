@@ -27,7 +27,7 @@
 //       For a desired FREQ in Hz, TCNT2 = 255 - CLOCK/FREQ where CLOCK=16000000/128. 
 // 
 // 0x10 clears the WRITE buffer to all 0's
-// 0x11 sets the write pointer to the start of FILL
+// 0x11 sets the write pointer to the start of FAST
 // Data:
 //   Triplets of bytes are written sequentially to the WRITE buffer as R, G & B (bytes beyond the buffer are ignored)
 //   EXCEPT that after an 0x11 command, triplets of bytes are written sequentially to the FAST buffer. When the 4th triplet is received the buffer is interpreted as
