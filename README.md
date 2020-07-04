@@ -10,7 +10,7 @@ A driver for a Funduino/Colorduino (Peripheral) board:
       ATMEGA328P pins PD6 & 7 are SCL & SDA to DM163 pins DCK & SIN. DM163 pins IOUT0-23 are connected to LED RGB row pins
   * an M54564FP which drives the LED rows.
       ATMEGA328P pins PB0-4 & PD3,4 connect to M54564FP pins IN1-8. M54564FP pins OUT1-8 connect to LED pins VCC0-7
-  * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x70)
+  * an EXTERNAL Controller Arduino device driving the LED colours via I2C/Wire (address 0x70)
   
 This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/colorduino-schematic-and-demo-code) but simplified/clarified and with the addition of a simple I2C Controller/Peripheral protocol.
 
@@ -51,7 +51,8 @@ Request:
   Requesting a single byte returns the number of bytes written to the WRITE buffer
   
 Demo:
-  If #define'd, a demo will run after 5s if no wire data is received from the Master
+  If #define'd, a demo will run after 5s if no wire data is received from the Controller
+  
   
 Example:\
   See ChromaduinoController.ino.  This just flips RGB's around.\
