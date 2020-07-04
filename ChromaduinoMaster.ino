@@ -1,5 +1,5 @@
 #include <Wire.h>
-// Example of using I2C to drive a Chromaduino/Funduino LED matrix slave
+// Example of using I2C to drive a Chromaduino/Funduino LED matrix Peripheral
 // Just cycles colours
 // Mark Wilson Dec '16
 
@@ -39,7 +39,7 @@ void ShowBuffer()
 
 bool SetBalance()
 {
-  // true if there are 3 bytes in the slave's buffer
+  // true if there are 3 bytes in the Peripheral's buffer
   Wire.requestFrom(I2C_ADDR, 1);
   byte count = 0;
   if (Wire.available())
@@ -49,7 +49,7 @@ bool SetBalance()
   Wire.write((byte)0x02); // set the 3 bytes to be balance
   Wire.endTransmission();
   delay(1);
-  return count == 3;  // the slave got 3 bytes
+  return count == 3;  // the Peripheral got 3 bytes
 }
 
 void DisplayBuffer()
@@ -87,7 +87,7 @@ void setup()
   delay(1);
   digitalWrite(RST_PIN, HIGH);
   
-  // keep trying to set the slave's balance until it's awake
+  // keep trying to set the Peripheral's balance until it's awake
   do
   {
     delay(100);
