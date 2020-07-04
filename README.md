@@ -1,9 +1,9 @@
 # Chromaduino
-A driver for a (slave) Funduino/Colorduino 8x8 RGB LED board.  The LED display can then be controlled by an I2C master.
-This leaves the master Arduino with pins available for other functions, like reading buttons etc.  
-It's also easier to reprogram a master.
+A driver for a Funduino/Colorduino 8x8 RGB LED Peripheral board.  The LED display can then be controlled by an I2C Controller.
+This leaves the Controller Arduino with pins available for other functions, like reading buttons etc.  
+It's also easier to reprogram a Controller.
 
-A driver for a Funduino/Colorduino (slave) board: 
+A driver for a Funduino/Colorduino (Peripheral) board: 
 * an 8x8 RGB LED matrix common anode
 * an ATMEGA328P connected to
   * a DM163 which drives 24 channels of PWM data connected to 8x Red, Green and Blue LED columns.  
@@ -12,11 +12,11 @@ A driver for a Funduino/Colorduino (slave) board:
       ATMEGA328P pins PB0-4 & PD3,4 connect to M54564FP pins IN1-8. M54564FP pins OUT1-8 connect to LED pins VCC0-7
   * an EXTERNAL master Arduino device driving the LED colours via I2C/Wire (address 0x70)
   
-This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/colorduino-schematic-and-demo-code) but simplified/clarified and with the addition of a simple I2C master/slave protocol.
+This code is based on the "Colorduino" library/demo (https://www.itead.cc/blog/colorduino-schematic-and-demo-code) but simplified/clarified and with the addition of a simple I2C Controller/Peripheral protocol.
 
-Commands are a 1-byte transmission from the Master to the Chromaduino (Slave, address 0x70).  Data is a 3-byte transmission. 
+Commands are a 1-byte transmission from the Controller to the Chromaduino (Peripheral, address 0x70).  Data is a 3-byte transmission. 
 The Chromaduino has two RGB channel buffers of 3x8x8 bytes.  One buffer (READ) is being read from to drive the LED display. 
-The other buffer (WRITE) is being written to by the Master.\
+The other buffer (WRITE) is being written to by the Controller.\
 There is a third buffer, FAST, which is 12 bytes long (see command 0x11)
 
 
@@ -54,8 +54,8 @@ Demo:
   If #define'd, a demo will run after 5s if no wire data is received from the Master
   
 Example:\
-  See ChromaduinoMaster.ino.  This just flips RGB's around.\
-  See ChromaduinoScrollDemoMaster.ino.  This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
+  See ChromaduinoController.ino.  This just flips RGB's around.\
+  See ChromaduinoScrollDemoController.ino.  This demonstrates scrolling text on two daisy-chained LED matrices (each must have a unique I2C address)
 
 Programming:\
 Program the board by (for example) popping the ATmega chip off a Duemilanove and connecting\
