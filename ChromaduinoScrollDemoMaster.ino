@@ -1,12 +1,12 @@
 #include <Wire.h>
-// Example of using I2C to drive a Chromoduino/Funduino LED matrix slave: scrolling text, using faster command (0x11)
+// Example of using I2C to drive a Chromoduino/Funduino LED matrix Peripheral: scrolling text, using faster command (0x11)
 // Mark Wilson Jul '18
 
 //********** CONFIGURATION BEGINS
 // Things to configure; number of LED matrices, their addresses, colour balances, orientation, command style, speed
 #define LED_MATRIX_COUNT (2)  // number of LED matrices connected
 
-// I2C address of the LED matrices.  The first address should be of the matrix connected DIRECTLY to the Master
+// I2C address of the LED matrices.  The first address should be of the matrix connected DIRECTLY to the Controller
 int matrixAddress[LED_MATRIX_COUNT] = {0x70, 
                                        0x71};
 
@@ -124,7 +124,7 @@ void ShowBuffer(int matrix)
 
 bool SetBalance(int matrix)
 {
-  // true if there are 3 bytes in the slave's buffer
+  // true if there are 3 bytes in the Peripheral's buffer
   Wire.requestFrom(GetMatrixAddress(matrix), 1);
   byte count = 0;
   if (Wire.available())
@@ -134,7 +134,7 @@ bool SetBalance(int matrix)
   Wire.write((byte)0x02); // set the 3 bytes to be balance
   Wire.endTransmission();
   delay(1);
-  return count == 3;  // the slave got 3 bytes
+  return count == 3;  // the Peripheral got 3 bytes
 }
 
 void SendDisplay(int matrix)
