@@ -1,5 +1,5 @@
 # Chromaduino
-A driver for a Funduino/Colorduino 8x8 RGB LED Peripheral board.  The LED display can then be controlled by an I2C Controller.
+A driver for a Funduino/Colorduino 8x8 RGB LED I2C "Peripheral" board.  The LED display can then be commanded by an I2C "Controller".
 This leaves the Controller Arduino with pins available for other functions, like reading buttons etc.  
 It's also easier to reprogram a Controller.
 
